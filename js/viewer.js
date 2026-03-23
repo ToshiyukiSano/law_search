@@ -22,6 +22,7 @@
   var elSearchNext  = document.getElementById('search-next');
   var elSearchCount = document.getElementById('search-count');
   var elSearchClear = document.getElementById('search-clear');
+  var elSearchFloat = document.getElementById('search-float');
 
   // ── URL params ────────────────────────────────────────────
   function getParams() {
@@ -567,6 +568,7 @@
     articleHits = [];
     articleHitIndex = -1;
     elSearchCount.textContent = '';
+    elSearchFloat.hidden = true;
   }
 
   function highlightInNode(node, re) {
@@ -622,6 +624,7 @@
       return;
     }
     articleHitIndex = 0;
+    elSearchFloat.hidden = false;
     scrollToArticle(articleHitIndex);
   }
 

@@ -22,12 +22,15 @@
   </div>
 
   <div id="search-bar">
-    <input id="search-input" type="text" placeholder="キーワード検索" aria-label="キーワード検索">
+    <input id="search-input" type="text" placeholder="キーワード検索（スペースでAND）" aria-label="キーワード検索">
     <button id="search-btn">検索</button>
-    <button id="search-prev" title="前の一致へ">&#x25B2;</button>
-    <button id="search-next" title="次の一致へ">&#x25BC;</button>
-    <span id="search-count"></span>
     <button id="search-clear" title="クリア">&#x2715;</button>
+  </div>
+
+  <div id="search-float" hidden>
+    <button id="search-prev" title="前の条文へ">&#x25B2;</button>
+    <span id="search-count"></span>
+    <button id="search-next" title="次の条文へ">&#x25BC;</button>
   </div>
 
   <div id="loading">読み込み中...</div>
