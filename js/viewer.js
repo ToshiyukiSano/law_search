@@ -551,8 +551,8 @@
   }
 
   // ── Keyword search ────────────────────────────────────────
-  var searchHits = [];
-  var searchHitIndex = -1;
+  var articleHits = [];
+  var articleHitIndex = -1;
 
   function clearHighlights() {
     var marks = elLawBody.querySelectorAll('mark.search-hit');
@@ -561,25 +561,26 @@
       parent.replaceChild(document.createTextNode(m.textContent), m);
       parent.normalize();
     });
-    searchHits = [];
-    searchHitIndex = -1;
+    elLawBody.querySelectorAll('.article-hit-active').forEach(function (el) {
+      el.classList.remove('article-hit-active');
+    });
+    articleHits = [];
+    articleHitIndex = -1;
     elSearchCount.textContent = '';
   }
 
-  function highlightKeyword(query) {
-    var re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    var walker = document.createTreeWalker(elLawBody, NodeFilter.SHOW_TEXT, null, false);
+  function highlightInNode(node, re) {
+    var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null, false);
     var textNodes = [];
-    var node;
-    while ((node = walker.nextNode())) {
+    var tn;
+    while ((tn = walker.nextNode())) {
       re.lastIndex = 0;
-      if (re.test(node.textContent)) textNodes.push(node);
+      if (re.test(tn.textContent)) textNodes.push(tn);
     }
     textNodes.forEach(function (tn) {
       var text = tn.textContent;
       var frag = document.createDocumentFragment();
-      var last = 0;
-      var m;
+      var last = 0, m;
       re.lastIndex = 0;
       while ((m = re.exec(text)) !== null) {
         if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
@@ -587,7 +588,6 @@
         mark.className = 'search-hit';
         mark.textContent = m[0];
         frag.appendChild(mark);
-        searchHits.push(mark);
         last = m.index + m[0].length;
       }
       if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
@@ -595,24 +595,43 @@
     });
   }
 
-  function scrollToHit(i) {
-    searchHits.forEach(function (m) { m.classList.remove('search-hit-active'); });
-    searchHits[i].classList.add('search-hit-active');
-    searchHits[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    elSearchCount.textContent = (i + 1) + ' / ' + searchHits.length;
-  }
-
   function runSearch() {
     var query = elSearchInput.value.trim();
     clearHighlights();
     if (!query) return;
-    highlightKeyword(query);
-    if (searchHits.length === 0) {
+
+    // スペース区切りで複数キーワード（AND検索）
+    var keywords = query.split(/\s+/).filter(Boolean);
+
+    var allArticles = Array.from(elLawBody.querySelectorAll('.article-block'));
+    allArticles.forEach(function (article) {
+      var text = article.textContent;
+      var matched = keywords.every(function (kw) {
+        return text.toLowerCase().indexOf(kw.toLowerCase()) !== -1;
+      });
+      if (!matched) return;
+      articleHits.push(article);
+      keywords.forEach(function (kw) {
+        var re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        highlightInNode(article, re);
+      });
+    });
+
+    if (articleHits.length === 0) {
       elSearchCount.textContent = '見つかりません';
       return;
     }
-    searchHitIndex = 0;
-    scrollToHit(searchHitIndex);
+    articleHitIndex = 0;
+    scrollToArticle(articleHitIndex);
+  }
+
+  function scrollToArticle(i) {
+    elLawBody.querySelectorAll('.article-hit-active').forEach(function (el) {
+      el.classList.remove('article-hit-active');
+    });
+    articleHits[i].classList.add('article-hit-active');
+    articleHits[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    elSearchCount.textContent = (i + 1) + '件目 / ' + articleHits.length + '件';
   }
 
   elSearchBtn.addEventListener('click', runSearch);
@@ -620,14 +639,14 @@
     if (e.key === 'Enter') runSearch();
   });
   elSearchPrev.addEventListener('click', function () {
-    if (!searchHits.length) return;
-    searchHitIndex = (searchHitIndex - 1 + searchHits.length) % searchHits.length;
-    scrollToHit(searchHitIndex);
+    if (!articleHits.length) return;
+    articleHitIndex = (articleHitIndex - 1 + articleHits.length) % articleHits.length;
+    scrollToArticle(articleHitIndex);
   });
   elSearchNext.addEventListener('click', function () {
-    if (!searchHits.length) return;
-    searchHitIndex = (searchHitIndex + 1) % searchHits.length;
-    scrollToHit(searchHitIndex);
+    if (!articleHits.length) return;
+    articleHitIndex = (articleHitIndex + 1) % articleHits.length;
+    scrollToArticle(articleHitIndex);
   });
   elSearchClear.addEventListener('click', function () {
     elSearchInput.value = '';

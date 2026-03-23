@@ -251,9 +251,11 @@ mark.search-hit {
   padding: 0 1px;
 }
 
-mark.search-hit-active {
-  background: #ff9800;
-  outline: 2px solid #e65100;
+.article-hit-active {
+  background: #fff8e1;
+  border-left: 3px solid #ff9800;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
   border-radius: 2px;
 }
 
