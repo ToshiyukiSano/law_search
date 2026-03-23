@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法令検索</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1><a href="./">法令検索</a></h1>
+  </header>
+
+  <main class="index-main">
+    <div class="options">
+      <label>
+        <input type="checkbox" id="opt-newtab">
+        別タブで開く
+      </label>
+      <label>
+        <input type="checkbox" id="opt-amended">
+        未施行の部分がある場合は改正法を表示する
+      </label>
+    </div>
+
+    <ul class="law-list" id="law-list">
+      <li><a href="law.html?id=321CONSTITUTION" data-law-id="321CONSTITUTION">憲法</a></li>
+      <li><a href="law.html?id=129AC0000000089" data-law-id="129AC0000000089">民法</a></li>
+      <li><a href="law.html?id=140AC0000000045" data-law-id="140AC0000000045">刑法</a></li>
+      <li><a href="law.html?id=132AC0000000048" data-law-id="132AC0000000048">商法</a></li>
+      <li><a href="law.html?id=417AC0000000086" data-law-id="417AC0000000086">会社法</a></li>
+      <li><a href="law.html?id=408AC0000000109" data-law-id="408AC0000000109">民事訴訟法</a></li>
+      <li><a href="law.html?id=323AC0000000131" data-law-id="323AC0000000131">刑事訴訟法</a></li>
+    </ul>
+
+    <p class="index-footer">使い方は<a href="manual.html">こちら</a></p>
+  </main>
+
+  <button class="page-top-btn" id="page-top-btn" title="ページトップへ">
+    <img src="img/arrow.svg" alt="↑">
+  </button>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

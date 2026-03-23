@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法令検索</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <a href="./">法令検索</a>
+    <span id="law-title"></span>
+    <label>
+      <input type="checkbox" id="opt-amended">
+      未施行の改正法を表示する
+    </label>
+  </header>
+
+  <div id="nav-bar">
+    <input id="art-input" type="text" placeholder="条番号 (例: 1, 3_2, 000)" aria-label="条番号">
+    <button id="go-btn">移動</button>
+  </div>
+
+  <div id="loading">読み込み中...</div>
+
+  <main id="law-body"></main>
+
+  <div class="toast" id="toast"></div>
+  <button class="page-top-btn" id="page-top-btn" title="ページトップへ">
+    <img src="img/arrow.svg" alt="↑">
+  </button>
+
+  <script src="js/viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使い方 — 法令検索</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1><a href="./">法令検索</a></h1>
+    <span id="law-title">使い方</span>
+  </header>
+
+  <main class="manual-main">
+    <h1>使い方</h1>
+
+    <h2>条文への移動</h2>
+    <p>法令表示画面の上部にある入力欄に条番号を入力して「移動」ボタンを押すと、その条文へスクロールします。Enterキーでも移動できます。</p>
+
+    <table>
+      <thead>
+        <tr><th>入力値</th><th>移動先</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>0</code></td><td>目次</td></tr>
+        <tr><td><code>00</code></td><td>前文（憲法のみ）</td></tr>
+        <tr><td><code>000</code></td><td>附則</td></tr>
+        <tr><td><code>1</code></td><td>第一条</td></tr>
+        <tr><td><code>5</code></td><td>第五条</td></tr>
+        <tr><td><code>3_2</code>、<code>3.2</code>、<code>3-2</code></td><td>第三条の二</td></tr>
+      </tbody>
+    </table>
+
+    <h2>URLのコピー</h2>
+    <p>条文の題名（「第○条」の部分）をクリックすると、その条文へのURLがクリップボードにコピーされます。画面下部に「URLをコピーしました」と表示されます。</p>
+    <p>コピーされたURLをブラウザのアドレスバーに貼り付けると、その条文に直接アクセスできます。</p>
+
+    <div class="note">
+      クリップボードへのコピーはHTTPSまたはlocalhostでのみ動作します。HTTP環境では代替手段（execCommand）を使用しますが、一部のブラウザでは動作しない場合があります。
+    </div>
+
+    <h2>未施行の改正法</h2>
+    <p>画面上部の「未施行の改正法を表示する」チェックボックスをオンにすると、未施行の附則（改正法の附則）が表示されます。</p>
+    <p>トップページでも同様のチェックボックスがあり、法令を開いた際に自動的に改正法を表示するか設定できます。</p>
+
+    <h2>条番号の形式について</h2>
+    <ul>
+      <li>枝番付きの条（例: 第三条の二）は <code>_</code>（アンダースコア）で区切って入力します（例: <code>3_2</code>）</li>
+      <li><code>.</code>（ピリオド）や <code>-</code>（ハイフン）も使用できます（例: <code>3.2</code>、<code>3-2</code>）</li>
+    </ul>
+
+    <h2>免責事項</h2>
+    <p>本サイトは e-Gov 法令 API（<code>https://laws.e-gov.go.jp/api/1/</code>）を利用して法令データを取得・表示しています。</p>
+    <p>前文・附則など一部の条文については、レイアウトや書式が原文と異なる場合があります。正確な法令文については、e-Gov 法令検索（<a href="https://laws.e-gov.go.jp/" target="_blank" rel="noopener noreferrer">https://laws.e-gov.go.jp/</a>）をご利用ください。</p>
+
+    <p style="margin-top: 2rem;"><a href="./">← トップページへ戻る</a></p>
+  </main>
+
+  <button class="page-top-btn" id="page-top-btn" title="ページトップへ">
+    <img src="img/arrow.svg" alt="↑">
+  </button>
+
+  <script src="js/manual.js"></script>
+</body>
+</html>
