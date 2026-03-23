@@ -8,14 +8,20 @@
   var xmlDoc = null;
 
   // ── DOM refs ───────────────────────────────────────────────
-  var elLawTitle = document.getElementById('law-title');
-  var elLoading  = document.getElementById('loading');
-  var elLawBody  = document.getElementById('law-body');
-  var elArtInput = document.getElementById('art-input');
-  var elGoBtn    = document.getElementById('go-btn');
-  var elCbAmend  = document.getElementById('opt-amended');
-  var elToast    = document.getElementById('toast');
-  var elPageTop  = document.getElementById('page-top-btn');
+  var elLawTitle    = document.getElementById('law-title');
+  var elLoading     = document.getElementById('loading');
+  var elLawBody     = document.getElementById('law-body');
+  var elArtInput    = document.getElementById('art-input');
+  var elGoBtn       = document.getElementById('go-btn');
+  var elCbAmend     = document.getElementById('opt-amended');
+  var elToast       = document.getElementById('toast');
+  var elPageTop     = document.getElementById('page-top-btn');
+  var elSearchInput = document.getElementById('search-input');
+  var elSearchBtn   = document.getElementById('search-btn');
+  var elSearchPrev  = document.getElementById('search-prev');
+  var elSearchNext  = document.getElementById('search-next');
+  var elSearchCount = document.getElementById('search-count');
+  var elSearchClear = document.getElementById('search-clear');
 
   // ── URL params ────────────────────────────────────────────
   function getParams() {
@@ -543,6 +549,90 @@
     });
     localStorage.setItem('opt-amended', show);
   }
+
+  // ── Keyword search ────────────────────────────────────────
+  var searchHits = [];
+  var searchHitIndex = -1;
+
+  function clearHighlights() {
+    var marks = elLawBody.querySelectorAll('mark.search-hit');
+    marks.forEach(function (m) {
+      var parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+    searchHits = [];
+    searchHitIndex = -1;
+    elSearchCount.textContent = '';
+  }
+
+  function highlightKeyword(query) {
+    var re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    var walker = document.createTreeWalker(elLawBody, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    var node;
+    while ((node = walker.nextNode())) {
+      re.lastIndex = 0;
+      if (re.test(node.textContent)) textNodes.push(node);
+    }
+    textNodes.forEach(function (tn) {
+      var text = tn.textContent;
+      var frag = document.createDocumentFragment();
+      var last = 0;
+      var m;
+      re.lastIndex = 0;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        var mark = document.createElement('mark');
+        mark.className = 'search-hit';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        searchHits.push(mark);
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      tn.parentNode.replaceChild(frag, tn);
+    });
+  }
+
+  function scrollToHit(i) {
+    searchHits.forEach(function (m) { m.classList.remove('search-hit-active'); });
+    searchHits[i].classList.add('search-hit-active');
+    searchHits[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    elSearchCount.textContent = (i + 1) + ' / ' + searchHits.length;
+  }
+
+  function runSearch() {
+    var query = elSearchInput.value.trim();
+    clearHighlights();
+    if (!query) return;
+    highlightKeyword(query);
+    if (searchHits.length === 0) {
+      elSearchCount.textContent = '見つかりません';
+      return;
+    }
+    searchHitIndex = 0;
+    scrollToHit(searchHitIndex);
+  }
+
+  elSearchBtn.addEventListener('click', runSearch);
+  elSearchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') runSearch();
+  });
+  elSearchPrev.addEventListener('click', function () {
+    if (!searchHits.length) return;
+    searchHitIndex = (searchHitIndex - 1 + searchHits.length) % searchHits.length;
+    scrollToHit(searchHitIndex);
+  });
+  elSearchNext.addEventListener('click', function () {
+    if (!searchHits.length) return;
+    searchHitIndex = (searchHitIndex + 1) % searchHits.length;
+    scrollToHit(searchHitIndex);
+  });
+  elSearchClear.addEventListener('click', function () {
+    elSearchInput.value = '';
+    clearHighlights();
+  });
 
   // ── Page-top button ───────────────────────────────────────
   window.addEventListener('scroll', function () {
