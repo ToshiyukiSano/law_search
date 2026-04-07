@@ -32,9 +32,13 @@
   var elLawSearchBtn     = document.getElementById('law-search-btn');
   var elLawSearchResults = document.getElementById('law-search-results');
 
+  var CACHE_KEY = 'lawlist-cache';
+  var CACHE_TTL = 24 * 60 * 60 * 1000; // 1日
+  var lawCache = null; // [{id, name}, ...]
+
   function buildLawUrl(lawId) {
     var base = 'law.html?id=' + lawId;
-    if (cbAmended && cbAmended.checked) base += '&amended=1';
+    if (cbAmended.checked) base += '&amended=1';
     return base;
   }
 
@@ -44,45 +48,86 @@
       elLawSearchResults.innerHTML = '<p class="no-result">該当する法令が見つかりませんでした。</p>';
       return;
     }
-    var label = '<p class="search-result-label">検索結果: ' + laws.length + '件</p>';
-    var items = laws.map(function (law) {
+    var shown = laws.slice(0, 50);
+    var label = '<p class="search-result-label">検索結果: ' + laws.length + '件' + (laws.length > 50 ? '（上位50件表示）' : '') + '</p>';
+    var items = shown.map(function (law) {
       var url = buildLawUrl(law.id);
-      var target = cbNewtab && cbNewtab.checked ? ' target="_blank" rel="noopener noreferrer"' : '';
+      var target = cbNewtab.checked ? ' target="_blank" rel="noopener noreferrer"' : '';
       return '<li><a href="' + url + '"' + target + '>' + law.name + '</a></li>';
     }).join('');
     elLawSearchResults.innerHTML = label + '<ul>' + items + '</ul>';
+  }
+
+  function filterAndRender(keyword) {
+    var kw = keyword.trim();
+    if (!kw) return;
+    var results = lawCache.filter(function (l) {
+      return l.name.indexOf(kw) !== -1;
+    });
+    renderResults(results);
+  }
+
+  function loadCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        var obj = JSON.parse(raw);
+        if (Date.now() - obj.ts < CACHE_TTL) return obj.data;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function saveCache(data) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) {}
+  }
+
+  function fetchLawList() {
+    return fetch('https://laws.e-gov.go.jp/api/1/lawlists/1')
+      .then(function (res) { return res.text(); })
+      .then(function (text) {
+        var parser = new DOMParser();
+        var xml = parser.parseFromString(text, 'text/xml');
+        var items = xml.querySelectorAll('LawNameListInfo');
+        var data = Array.from(items).map(function (item) {
+          return {
+            id:   (item.querySelector('LawId')   || {}).textContent || '',
+            name: (item.querySelector('LawName') || {}).textContent || ''
+          };
+        }).filter(function (l) { return l.id; });
+        saveCache(data);
+        return data;
+      });
   }
 
   function searchLaws() {
     var keyword = elLawSearchInput.value.trim();
     if (!keyword) return;
 
-    elLawSearchResults.removeAttribute('hidden');
-    elLawSearchResults.innerHTML = '<p class="no-result">検索中…</p>';
+    if (lawCache) {
+      filterAndRender(keyword);
+      return;
+    }
 
-    var url = 'https://laws.e-gov.go.jp/api/1/keyword?keyword=' + encodeURIComponent(keyword) + '&law_type=1&offset=0&limit=20';
-    fetch(url)
-      .then(function (res) { return res.text(); })
-      .then(function (text) {
-        var parser = new DOMParser();
-        var xml = parser.parseFromString(text, 'text/xml');
-        var items = xml.querySelectorAll('ApplData LawNameListInfo');
-        if (items.length === 0) {
-          renderResults([]);
-          return;
-        }
-        var laws = Array.from(items).map(function (item) {
-          var nameEl = item.querySelector('LawName');
-          var idEl   = item.querySelector('LawId');
-          return {
-            name: nameEl ? nameEl.textContent : '',
-            id:   idEl   ? idEl.textContent   : ''
-          };
-        }).filter(function (l) { return l.id; });
-        renderResults(laws);
+    elLawSearchResults.removeAttribute('hidden');
+    elLawSearchResults.innerHTML = '<p class="no-result">法令リストを読み込み中…（初回のみ時間がかかります）</p>';
+
+    var cached = loadCache();
+    if (cached) {
+      lawCache = cached;
+      filterAndRender(keyword);
+      return;
+    }
+
+    fetchLawList()
+      .then(function (data) {
+        lawCache = data;
+        filterAndRender(keyword);
       })
       .catch(function () {
-        elLawSearchResults.innerHTML = '<p class="no-result">検索に失敗しました。</p>';
+        elLawSearchResults.innerHTML = '<p class="no-result">法令リストの取得に失敗しました。</p>';
       });
   }
 
