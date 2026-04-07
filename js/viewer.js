@@ -407,6 +407,8 @@
     // May have Chapters or direct Articles
     var chapters = parent.querySelectorAll(':scope > Chapter');
     if (chapters.length) {
+      // Direct articles under parent (e.g., 刑訴法第1条 directly under Part)
+      renderArticleGroup(parent, container);
       chapters.forEach(function (ch) {
         var chNum = ch.getAttribute('Num') || '';
         var chBlock = document.createElement('div');
@@ -440,11 +442,27 @@
 
             var subSecs = sec.querySelectorAll(':scope > Subsection');
             if (subSecs.length) {
+              // Direct articles under Section (e.g., 国家公務員法 Section direct articles)
+              renderArticleGroup(sec, secBlock);
               subSecs.forEach(function (sub) {
-                renderArticleGroup(sub, secBlock);
+                var divs = sub.querySelectorAll(':scope > Division');
+                if (divs.length) {
+                  divs.forEach(function (div) {
+                    renderArticleGroup(div, secBlock);
+                  });
+                } else {
+                  renderArticleGroup(sub, secBlock);
+                }
               });
             } else {
-              renderArticleGroup(sec, secBlock);
+              var divs = sec.querySelectorAll(':scope > Division');
+              if (divs.length) {
+                divs.forEach(function (div) {
+                  renderArticleGroup(div, secBlock);
+                });
+              } else {
+                renderArticleGroup(sec, secBlock);
+              }
             }
 
             chBlock.appendChild(secBlock);
