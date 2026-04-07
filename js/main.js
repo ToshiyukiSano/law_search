@@ -61,9 +61,11 @@
   function filterAndRender(keyword) {
     var kw = keyword.trim();
     if (!kw) return;
+    var chars = kw.split('');
     var results = lawCache.filter(function (l) {
-      return l.name.indexOf(kw) !== -1;
+      return chars.every(function (c) { return l.name.indexOf(c) !== -1; });
     });
+    results.sort(function (a, b) { return a.name.length - b.name.length; });
     renderResults(results);
   }
 
