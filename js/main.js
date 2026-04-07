@@ -48,14 +48,14 @@
       elLawSearchResults.innerHTML = '<p class="no-result">該当する法令が見つかりませんでした。</p>';
       return;
     }
-    var shown = laws.slice(0, 50);
-    var label = '<p class="search-result-label">検索結果: ' + laws.length + '件' + (laws.length > 50 ? '（上位50件表示）' : '') + '</p>';
-    var items = shown.map(function (law) {
+    var shown = laws.slice(0, 100);
+    var label = '<p class="search-result-label">検索結果: ' + laws.length + '件' + (laws.length > 100 ? '（上位100件表示）' : '') + '</p>';
+    var tags = shown.map(function (law) {
       var url = buildLawUrl(law.id);
       var target = cbNewtab.checked ? ' target="_blank" rel="noopener noreferrer"' : '';
-      return '<li><a href="' + url + '"' + target + '>' + law.name + '</a></li>';
+      return '<a class="result-tag" href="' + url + '"' + target + '>' + law.name + '</a>';
     }).join('');
-    elLawSearchResults.innerHTML = label + '<ul>' + items + '</ul>';
+    elLawSearchResults.innerHTML = label + '<div class="result-tags">' + tags + '</div>';
   }
 
   function filterAndRender(keyword) {

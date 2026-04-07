@@ -122,28 +122,31 @@ header label {
 #law-search-results .search-result-label {
   font-size: 0.85rem;
   color: var(--color-muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
-#law-search-results ul {
-  list-style: none;
-  border-top: 1px solid var(--color-border);
+#law-search-results .result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-#law-search-results li {
-  border-bottom: 1px solid var(--color-border);
-}
-
-#law-search-results a {
-  display: block;
-  padding: 0.65rem 0.5rem;
-  font-size: 1.0625rem;
-  color: var(--color-link);
-  transition: background 0.1s;
-}
-
-#law-search-results a:hover {
+#law-search-results .result-tag {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.9rem;
+  color: var(--color-text);
   background: var(--color-hover-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+#law-search-results .result-tag:hover {
+  background: #2a2a2a;
+  border-color: var(--color-link);
   text-decoration: none;
 }
 
