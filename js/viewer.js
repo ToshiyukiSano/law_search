@@ -478,7 +478,10 @@
     var id = 'art-' + artRef;
     var el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var headerEl = document.querySelector('header');
+      var offset = headerEl ? headerEl.getBoundingClientRect().height : 0;
+      var top = el.getBoundingClientRect().top + window.scrollY - offset - 8;
+      window.scrollTo({ top: top, behavior: 'smooth' });
     } else {
       showToast('該当する条文が見つかりません: ' + artRef);
     }
@@ -632,14 +635,27 @@
     elLawBody.querySelectorAll('.article-hit-active').forEach(function (el) {
       el.classList.remove('article-hit-active');
     });
-    articleHits[i].classList.add('article-hit-active');
-    articleHits[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var art = articleHits[i];
+    art.classList.add('article-hit-active');
+    var headerEl = document.querySelector('header');
+    var offset = headerEl ? headerEl.getBoundingClientRect().height : 0;
+    var top = art.getBoundingClientRect().top + window.scrollY - offset - 8;
+    window.scrollTo({ top: top, behavior: 'smooth' });
     elSearchCount.textContent = (i + 1) + '件目 / ' + articleHits.length + '件';
   }
 
   elSearchBtn.addEventListener('click', runSearch);
   elSearchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') runSearch();
+  });
+
+  // キーワード入力で自動検索（デバウンス 600ms）
+  var searchInputTimer = null;
+  elSearchInput.addEventListener('input', function () {
+    if (searchInputTimer) clearTimeout(searchInputTimer);
+    searchInputTimer = setTimeout(function () {
+      runSearch();
+    }, 600);
   });
   elSearchPrev.addEventListener('click', function () {
     if (!articleHits.length) return;
@@ -672,6 +688,17 @@
   elGoBtn.addEventListener('click', resolveArticleInput);
   elArtInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') resolveArticleInput();
+  });
+
+  // 条番号を入力したら自動でその条文に移動（デバウンス 600ms）
+  var artInputTimer = null;
+  elArtInput.addEventListener('input', function () {
+    if (artInputTimer) clearTimeout(artInputTimer);
+    var raw = elArtInput.value.trim();
+    if (!raw) return;
+    artInputTimer = setTimeout(function () {
+      resolveArticleInput();
+    }, 600);
   });
 
   elCbAmend.addEventListener('change', applyAmendToggle);
