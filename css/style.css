@@ -475,6 +475,30 @@ mark.search-hit {
   margin-bottom: 0.75rem;
 }
 
+.subsection-block {
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.subsection-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+.division-block {
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.division-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
 /* Articles */
 .article-block {
   margin-bottom: 1.25rem;

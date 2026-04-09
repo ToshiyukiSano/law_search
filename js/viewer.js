@@ -295,10 +295,50 @@
         li2.className = 'toc-indent';
         var secNum = sec.getAttribute('Num') || '';
         var stEl   = sec.querySelector('SectionTitle');
-        var sr     = sec.querySelector('ArticleRange');
+        var sr     = sec.querySelector(':scope > ArticleRange');
         var txt    = (stEl ? textOf(stEl) : '') + (sr ? '（' + textOf(sr) + '）' : '');
         var secId  = secNum ? '#sec-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum : null;
         li2.appendChild(makeTOCLink(txt, secId));
+
+        // TOCSubsection
+        var subSecs2 = sec.querySelectorAll(':scope > TOCSubsection');
+        if (subSecs2.length) {
+          var ul3 = document.createElement('ul');
+          ul3.className = 'toc-list';
+          subSecs2.forEach(function (sub) {
+            var li3 = document.createElement('li');
+            li3.className = 'toc-indent';
+            var subNum = sub.getAttribute('Num') || '';
+            var subTitleEl = sub.querySelector('SubsectionTitle');
+            var subRange   = sub.querySelector(':scope > ArticleRange');
+            var subTxt     = (subTitleEl ? textOf(subTitleEl) : '') + (subRange ? '（' + textOf(subRange) + '）' : '');
+            var subId      = subNum ? '#sub-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum + '-' + subNum : null;
+            li3.appendChild(makeTOCLink(subTxt, subId));
+
+            // TOCDivision
+            var divs2 = sub.querySelectorAll(':scope > TOCDivision');
+            if (divs2.length) {
+              var ul4 = document.createElement('ul');
+              ul4.className = 'toc-list';
+              divs2.forEach(function (div) {
+                var li4 = document.createElement('li');
+                li4.className = 'toc-indent';
+                var divNum = div.getAttribute('Num') || '';
+                var divTitleEl = div.querySelector('DivisionTitle');
+                var divRange   = div.querySelector('ArticleRange');
+                var divTxt     = (divTitleEl ? textOf(divTitleEl) : '') + (divRange ? '（' + textOf(divRange) + '）' : '');
+                var divId      = divNum ? '#div-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum + '-' + subNum + '-' + divNum : null;
+                li4.appendChild(makeTOCLink(divTxt, divId));
+                ul4.appendChild(li4);
+              });
+              li3.appendChild(ul4);
+            }
+
+            ul3.appendChild(li3);
+          });
+          li2.appendChild(ul3);
+        }
+
         ul2.appendChild(li2);
       });
       li.appendChild(ul2);
@@ -445,20 +485,56 @@
               // Direct articles under Section (e.g., 国家公務員法 Section direct articles)
               renderArticleGroup(sec, secBlock);
               subSecs.forEach(function (sub) {
+                var subNum = sub.getAttribute('Num') || '';
+                var subBlock = document.createElement('div');
+                subBlock.className = 'subsection-block';
+                if (subNum) subBlock.id = 'sub-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum + '-' + subNum;
+                var subTitleEl = sub.querySelector(':scope > SubsectionTitle');
+                if (subTitleEl) {
+                  var subTitleDiv = document.createElement('div');
+                  subTitleDiv.className = 'subsection-title';
+                  subTitleDiv.textContent = textOf(subTitleEl);
+                  subBlock.appendChild(subTitleDiv);
+                }
                 var divs = sub.querySelectorAll(':scope > Division');
                 if (divs.length) {
                   divs.forEach(function (div) {
-                    renderArticleGroup(div, secBlock);
+                    var divNum = div.getAttribute('Num') || '';
+                    var divBlock = document.createElement('div');
+                    divBlock.className = 'division-block';
+                    if (divNum) divBlock.id = 'div-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum + '-' + subNum + '-' + divNum;
+                    var divTitleEl = div.querySelector(':scope > DivisionTitle');
+                    if (divTitleEl) {
+                      var divTitleDiv = document.createElement('div');
+                      divTitleDiv.className = 'division-title';
+                      divTitleDiv.textContent = textOf(divTitleEl);
+                      divBlock.appendChild(divTitleDiv);
+                    }
+                    renderArticleGroup(div, divBlock);
+                    subBlock.appendChild(divBlock);
                   });
                 } else {
-                  renderArticleGroup(sub, secBlock);
+                  renderArticleGroup(sub, subBlock);
                 }
+                secBlock.appendChild(subBlock);
               });
             } else {
               var divs = sec.querySelectorAll(':scope > Division');
               if (divs.length) {
                 divs.forEach(function (div) {
-                  renderArticleGroup(div, secBlock);
+                  var divNum = div.getAttribute('Num') || '';
+                  var divBlock = document.createElement('div');
+                  divBlock.className = 'division-block';
+                  if (divNum) divBlock.id = 'div-' + (partNum ? partNum + '-' : '') + chNum + '-' + secNum + '-' + divNum;
+                  var divTitleEl = div.querySelector(':scope > DivisionTitle');
+                  if (divTitleEl) {
+                    var divTitleDiv = document.createElement('div');
+                    divTitleDiv.className = 'division-title';
+                    divTitleDiv.textContent = textOf(divTitleEl);
+                    divBlock.appendChild(divTitleDiv);
+                  }
+                  renderArticleGroup(div, divBlock);
+                  secBlock.appendChild(divBlock);
                 });
               } else {
                 renderArticleGroup(sec, secBlock);
