@@ -37,11 +37,41 @@
 
   <main id="law-body"></main>
 
+  <div class="reader-resume" id="reader-resume" hidden>
+    <span id="reader-resume-text"></span>
+    <button id="reader-resume-go" type="button">続きから再生</button>
+    <button id="reader-resume-close" type="button" title="閉じる" aria-label="閉じる">&#x2715;</button>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="reader-panel" id="reader-panel" hidden>
+      <label for="reader-voice">音声</label>
+      <select id="reader-voice"></select>
+      <button id="reader-voice-test" type="button" class="reader-voice-test">試聴</button>
+    </div>
+    <div class="reader-main">
+      <div class="reader-controls">
+        <button id="reader-prev" type="button" title="前の条へ" aria-label="前の条へ">&#x23EE;</button>
+        <button id="reader-play" class="reader-play" type="button" title="再生" aria-label="再生">&#x25B6;</button>
+        <button id="reader-next" type="button" title="次の条へ" aria-label="次の条へ">&#x23ED;</button>
+        <button id="reader-stop" type="button" title="停止（位置を保存）" aria-label="停止">&#x25A0;</button>
+      </div>
+      <div class="reader-status" id="reader-status" aria-live="polite">読み込み中...</div>
+      <div class="reader-rate">
+        <label for="reader-rate" title="読み上げ速度">速度</label>
+        <input type="range" id="reader-rate" min="0.5" max="2" step="0.05" value="1">
+        <span id="reader-rate-val">1.0x</span>
+        <button id="reader-settings-btn" type="button" title="音声の設定" aria-label="音声の設定" aria-expanded="false">&#x2699;</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
   <button class="page-top-btn" id="page-top-btn" title="ページトップへ">
     <img src="img/arrow.svg" alt="↑">
   </button>
 
+  <script src="js/reader.js"></script>
   <script src="js/viewer.js"></script>
 </body>
 </html>
