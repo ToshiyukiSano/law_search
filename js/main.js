@@ -160,6 +160,48 @@
   // Also update hrefs when amended checkbox changes
   cbAmended.addEventListener('change', applyNewtab);
 
+  // ── 聞きかけの法令（読み上げブックマーク） ─────────────
+  function renderResumeList() {
+    var section = document.getElementById('resume-list');
+    var ul = document.getElementById('resume-items');
+    var ids = [];
+    try { ids = JSON.parse(localStorage.getItem('reader-bm-index') || '[]'); } catch (e) {}
+    ul.innerHTML = '';
+    ids.forEach(function (id) {
+      var bm = null;
+      try { bm = JSON.parse(localStorage.getItem('reader-bm-' + id) || 'null'); } catch (e) {}
+      if (!bm) return;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = buildLawUrl(id) + '&resume=1';
+      a.textContent = bm.title || id;
+      if (cbNewtab.checked) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+      var pos = document.createElement('span');
+      pos.className = 'resume-pos';
+      pos.textContent = bm.label + ' から';
+      var del = document.createElement('button');
+      del.className = 'resume-del';
+      del.type = 'button';
+      del.title = 'ブックマークを削除';
+      del.setAttribute('aria-label', 'ブックマークを削除');
+      del.textContent = '\u2715';
+      del.addEventListener('click', function () {
+        localStorage.removeItem('reader-bm-' + id);
+        localStorage.setItem('reader-bm-index', JSON.stringify(ids.filter(function (x) { return x !== id; })));
+        renderResumeList();
+      });
+      li.appendChild(a);
+      li.appendChild(pos);
+      li.appendChild(del);
+      ul.appendChild(li);
+    });
+    section.hidden = !ul.children.length;
+  }
+
+  renderResumeList();
+  cbNewtab.addEventListener('change', renderResumeList);
+  cbAmended.addEventListener('change', renderResumeList);
+
   // ── Page-top button ───────────────────────────────────────
   const pageTopBtn = document.getElementById('page-top-btn');
   window.addEventListener('scroll', function () {

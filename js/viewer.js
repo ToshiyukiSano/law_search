@@ -646,6 +646,7 @@
       b.style.display = show ? '' : 'none';
     });
     localStorage.setItem('opt-amended', show);
+    document.dispatchEvent(new CustomEvent('law:changed'));
   }
 
   // ── Keyword search ────────────────────────────────────────
@@ -819,6 +820,7 @@
         xmlDoc = doc;
         renderLaw(doc);
         elLoading.style.display = 'none';
+        document.dispatchEvent(new CustomEvent('law:rendered'));
 
         // Navigate to article if specified
         if (params.art !== null) {

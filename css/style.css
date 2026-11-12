@@ -732,3 +732,330 @@ mark.search-hit {
     font-size: 1rem;
   }
 }
+
+/* ─── Reader (読み上げプレイヤー) ─────────────────────── */
+body:has(#reader) {
+  padding-bottom: 9rem;
+}
+
+body:has(#reader) .page-top-btn {
+  bottom: 7.5rem;
+}
+
+body:has(#reader) .toast {
+  bottom: 8.5rem;
+}
+
+body:has(#reader) #search-float {
+  bottom: 10rem;
+}
+
+.reader {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1a1a1a;
+  border-top: 1px solid var(--color-border);
+  z-index: 150;
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+.reader-main,
+.reader-panel {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.reader-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.reader-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.reader button {
+  background: #2a2a2a;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: var(--font);
+  line-height: 1;
+}
+
+.reader button:hover:not(:disabled) {
+  background: #353535;
+}
+
+.reader button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.reader button.reader-play {
+  background: var(--color-link);
+  border-color: var(--color-link);
+  color: #fff;
+  min-width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  font-size: 1.1rem;
+}
+
+.reader button.reader-play:hover {
+  background: #0055aa;
+}
+
+.reader-status {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.reader-rate {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.reader-rate input[type="range"] {
+  width: 7rem;
+  accent-color: var(--color-link);
+}
+
+#reader-rate-val {
+  min-width: 2.6rem;
+  text-align: right;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reader-panel[hidden] {
+  display: none;
+}
+
+.reader-panel select {
+  flex: 1;
+  max-width: 24rem;
+  background: #2a2a2a;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.3rem;
+  font-family: var(--font);
+}
+
+.reader-resume {
+  position: fixed;
+  left: 50%;
+  bottom: 5.25rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #23344a;
+  color: #fff;
+  border: 1px solid var(--color-link);
+  padding: 0.45rem 0.6rem 0.45rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  z-index: 160;
+  max-width: calc(100vw - 1.5rem);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.reader-resume[hidden] {
+  display: none;
+}
+
+.reader-resume span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reader-resume button {
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+#reader-resume-go {
+  background: var(--color-link);
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+}
+
+#reader-resume-close {
+  background: none;
+  color: #ccc;
+  padding: 0.3rem 0.4rem;
+}
+
+.reader-art-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  border-radius: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.article-block:hover .reader-art-btn,
+.preamble-block:hover .reader-art-btn,
+.reader-art-btn:focus-visible {
+  opacity: 1;
+  color: var(--color-link);
+  border-color: var(--color-link);
+}
+
+.reader-active {
+  background: rgba(91, 155, 213, 0.16);
+  box-shadow: -0.5rem 0 0 rgba(91, 155, 213, 0.16), 0.5rem 0 0 rgba(91, 155, 213, 0.16);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+/* トップページ: 聞きかけの法令 */
+.resume-list {
+  margin: 1.5rem 0;
+}
+
+.resume-list h2 {
+  font-size: 1rem;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+.resume-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.resume-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.resume-list .resume-pos {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  flex: 1;
+}
+
+.resume-list .resume-del {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .reader {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .reader-main {
+    grid-template-columns: 1fr auto;
+  }
+
+  .reader-status {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: center;
+  }
+
+  .reader-rate {
+    gap: 0.3rem;
+  }
+
+  .reader-rate label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .reader-rate input[type="range"] {
+    width: 4.5rem;
+  }
+
+  #reader-rate-val {
+    min-width: 2.2rem;
+  }
+
+  .reader button {
+    min-width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .reader button.reader-play {
+    min-width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  body:has(#reader) {
+    padding-bottom: 11rem;
+  }
+
+  body:has(#reader) .page-top-btn {
+    bottom: 9rem;
+  }
+
+  body:has(#reader) .toast {
+    bottom: 10rem;
+  }
+
+  body:has(#reader) #search-float {
+    bottom: 11.5rem;
+  }
+
+  .reader-resume {
+    bottom: 7.5rem;
+  }
+
+  .reader-art-btn {
+    opacity: 1;
+  }
+}
