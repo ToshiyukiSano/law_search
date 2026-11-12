@@ -45,6 +45,7 @@
   var token = 0;          // 古い utterance のコールバックを無視するための世代番号
   var activeEl = null;
   var voices = [];
+  var currentUtterance = null;
 
   // ── 設定 ──────────────────────────────────────────────────
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -253,6 +254,7 @@
       current++;
       speakCurrent();
     };
+    currentUtterance = u; // GC されると onend が発火しない不具合への対策
     synth.speak(u);
   }
 
@@ -264,10 +266,28 @@
     hideResume();
     playing = true;
     token++;
-    synth.cancel();
     updateButtons();
-    // cancel 直後の speak が無視されるブラウザ対策
-    setTimeout(function () { if (playing) speakCurrent(); }, 50);
+    var busy = synth.speaking || synth.pending;
+    // iOS Safari は、ユーザー操作（タップ）の処理中に同期的に speak() しないと
+    // 音を出さずに無視する。最初のタップで無音の発話を流して読み上げを許可させる。
+    unlockSpeech();
+    if (busy) {
+      synth.cancel();
+      // cancel 直後の speak が無視されるブラウザ対策
+      setTimeout(function () { if (playing) speakCurrent(); }, 50);
+    } else {
+      speakCurrent();
+    }
+  }
+
+  var unlocked = false;
+  function unlockSpeech() {
+    if (unlocked) return;
+    unlocked = true;
+    var u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    u.lang = 'ja-JP';
+    synth.speak(u);
   }
 
   // 一時停止は「現在の文の頭から再開」方式（pause/resume は環境依存で不安定なため）
