@@ -839,7 +839,7 @@ body:has(#reader) #search-float {
 }
 
 #reader-rate-val {
-  min-width: 2.6rem;
+  min-width: 3rem;
   text-align: right;
   color: var(--color-text);
   font-variant-numeric: tabular-nums;
@@ -1018,11 +1018,11 @@ body:has(#reader) #search-float {
   }
 
   .reader-rate input[type="range"] {
-    width: 4.5rem;
+    width: 4rem;
   }
 
   #reader-rate-val {
-    min-width: 2.2rem;
+    min-width: 2.7rem;
   }
 
   .reader button {

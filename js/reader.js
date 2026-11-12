@@ -51,12 +51,15 @@
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
-  var rate = parseFloat(lsGet(RATE_KEY)) || 1.0;
+  var RATE_MIN = 0.5, RATE_MAX = 2.0;
+  var rate = Math.min(RATE_MAX, Math.max(RATE_MIN, parseFloat(lsGet(RATE_KEY)) || 1.0));
   elRate.value = rate;
   updateRateLabel();
 
   function updateRateLabel() {
-    elRateVal.textContent = rate.toFixed(1) + 'x';
+    // 1.25 のような値は小数2桁、1.5 などは1桁で表示
+    var t = rate.toFixed(2).replace(/0$/, '');
+    elRateVal.textContent = t + 'x';
   }
 
   function loadVoices() {
