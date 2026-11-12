@@ -275,7 +275,12 @@
     };
     u.onerror = function (e) {
       if (myToken !== token || !playing) return;
-      if (e.error === 'interrupted' || e.error === 'canceled') return;
+      if (e.error === 'interrupted' || e.error === 'canceled') {
+        // こちらが止めていないのに中断された（OS による割り込みなど）場合は
+        // 一時停止扱いにして表示を合わせ、位置を保存する
+        pause();
+        return;
+      }
       current++;
       speakCurrent();
     };
@@ -307,41 +312,14 @@
   }
 
   // ── iOS の消音モード対策 ───────────────────────────────
-  // iOS Safari のページ音声は通常、消音スイッチに従って鳴らない。
-  // (1) navigator.audioSession.type = 'playback'（Safari 17 以降）で「音楽再生」扱いにする
-  // (2) 無音の音声をループ再生して、オーディオセッションを再生モードに切り替える
-  var silentAudio = null;
-
-  function silentWavUrl() {
-    var rateHz = 22050, samples = rateHz / 2; // 0.5秒・16bit・モノラル
-    var buf = new ArrayBuffer(44 + samples * 2);
-    var dv = new DataView(buf);
-    function str(o, t) { for (var i = 0; i < t.length; i++) dv.setUint8(o + i, t.charCodeAt(i)); }
-    str(0, 'RIFF'); dv.setUint32(4, 36 + samples * 2, true); str(8, 'WAVE');
-    str(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
-    dv.setUint32(24, rateHz, true); dv.setUint32(28, rateHz * 2, true);
-    dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
-    str(36, 'data'); dv.setUint32(40, samples * 2, true);
-    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
-  }
-
+  // navigator.audioSession.type = 'playback'（Safari 17 以降）でページの音を
+  // 「音楽再生」扱いにし、消音スイッチの影響を受けないようにする。
+  // ※無音の音声をループ再生する方法は、読み上げ音声と取り合いになり
+  //   iOS が読み上げを止めてしまうため使わない。
   function startAudioSession() {
     try {
       if (navigator.audioSession) navigator.audioSession.type = 'playback';
     } catch (e) {}
-    try {
-      if (!silentAudio) {
-        silentAudio = new Audio(silentWavUrl());
-        silentAudio.loop = true;
-        silentAudio.setAttribute('playsinline', '');
-      }
-      var pr = silentAudio.play();
-      if (pr && pr.catch) pr.catch(function () {});
-    } catch (e) {}
-  }
-
-  function stopAudioSession() {
-    if (silentAudio) silentAudio.pause();
   }
 
   var unlocked = false;
@@ -359,7 +337,6 @@
     playing = false;
     token++;
     synth.cancel();
-    stopAudioSession();
     saveBookmark();
     updateButtons();
     if (segments[current]) elStatus.textContent = segments[current].artLabel + ' で一時停止中';
@@ -375,7 +352,6 @@
 
   function finish() {
     playing = false;
-    stopAudioSession();
     setActive(null);
     current = 0;
     clearBookmark();
@@ -592,5 +568,6 @@
     } catch (e) {}
   }
 
+  startAudioSession();
   updateButtons();
 }());
