@@ -71,10 +71,18 @@
     def.value = '';
     def.textContent = '既定の日本語音声';
     elVoice.appendChild(def);
+    var nameCount = {};
+    voices.forEach(function (v) { nameCount[v.name] = (nameCount[v.name] || 0) + 1; });
+    var seen = {};
     voices.forEach(function (v) {
       var o = document.createElement('option');
       o.value = v.voiceURI;
-      o.textContent = v.name + (v.localService ? '' : '（オンライン）');
+      o.textContent = v.name + voiceQuality(v) + (v.localService ? '' : '（オンライン）');
+      // 同名の音声が複数あり品質の区別もつかない場合は番号を付ける
+      if (nameCount[v.name] > 1 && !voiceQuality(v)) {
+        seen[v.name] = (seen[v.name] || 0) + 1;
+        o.textContent += ' ' + seen[v.name];
+      }
       if (v.voiceURI === saved) o.selected = true;
       elVoice.appendChild(o);
     });
@@ -82,10 +90,31 @@
   loadVoices();
   if ('onvoiceschanged' in synth) synth.addEventListener('voiceschanged', loadVoices);
 
+  // iOS などでは voiceURI に品質が含まれる（例: com.apple.voice.enhanced.ja-JP.Kyoko）
+  function voiceQuality(v) {
+    var uri = v.voiceURI || '';
+    if (/premium/i.test(uri)) return '（プレミアム）';
+    if (/enhanced/i.test(uri)) return '（高品質）';
+    if (/compact/i.test(uri)) return '（標準）';
+    return '';
+  }
+
+  // 「既定」のときは音声を指定せず OS に任せる。
+  // iOS はダウンロードしていない音声も一覧に出し、それを指定すると無音になるため。
   function selectedVoice() {
     var uri = elVoice.value;
+    if (!uri) return null;
     for (var i = 0; i < voices.length; i++) if (voices[i].voiceURI === uri) return voices[i];
-    return voices[0] || null;
+    return null;
+  }
+
+  function makeUtterance(text) {
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP';
+    u.rate = rate;
+    var v = selectedVoice();
+    if (v) u.voice = v;
+    return u;
   }
 
   // ── 読み上げ用テキストの構築 ──────────────────────────────
@@ -238,11 +267,7 @@
     elStatus.textContent = seg.artLabel + ' を読み上げ中';
     saveBookmark();
 
-    var u = new SpeechSynthesisUtterance(seg.text);
-    u.lang = 'ja-JP';
-    u.rate = rate;
-    var v = selectedVoice();
-    if (v) u.voice = v;
+    var u = makeUtterance(seg.text);
     u.onend = function () {
       if (myToken !== token || !playing) return;
       current++;
@@ -452,6 +477,15 @@
     lsSet(VOICE_KEY, elVoice.value);
     if (playing) play(current);
   });
+  // 試聴（タップ処理中に同期的に speak する）
+  document.getElementById('reader-voice-test').addEventListener('click', function () {
+    if (playing) pause();
+    token++;
+    synth.cancel();
+    unlocked = true;
+    synth.speak(makeUtterance('この音声で読み上げます。'));
+  });
+
   elSettings.addEventListener('click', function () {
     elPanel.hidden = !elPanel.hidden;
     elSettings.setAttribute('aria-expanded', String(!elPanel.hidden));

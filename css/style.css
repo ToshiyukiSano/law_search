@@ -860,6 +860,14 @@ body:has(#reader) #search-float {
   display: none;
 }
 
+.reader button.reader-voice-test {
+  min-width: auto;
+  height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 .reader-panel select {
   flex: 1;
   max-width: 24rem;
@@ -1028,6 +1036,10 @@ body:has(#reader) #search-float {
   .reader button {
     min-width: 2.2rem;
     height: 2.2rem;
+  }
+
+  .reader-panel select {
+    min-width: 0;
   }
 
   .reader button.reader-play {
